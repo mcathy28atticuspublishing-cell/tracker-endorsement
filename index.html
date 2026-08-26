@@ -1,0 +1,751 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Social Media Endorsement Desk</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #eef1ef;
+    --surface: #ffffff;
+    --surface-2: #f4f6f5;
+    --surface-3: #e8ede9;
+    --border: #d7ded9;
+    --border-strong: #bdc9c2;
+    --text: #1a2422;
+    --text-muted: #5b6864;
+    --text-faint: #8b9a94;
+    --accent: #2f5d62;
+    --accent-strong: #1f4448;
+    --accent-soft: #dbe9e8;
+    --success: #2e7d53;
+    --success-soft: #dcece1;
+    --warning: #a8721c;
+    --warning-soft: #f2e2c2;
+    --critical: #ad3939;
+    --critical-soft: #f3d9d9;
+    --focus-ring: #2f5d62;
+    --shadow: 0 8px 24px rgba(20, 30, 28, 0.10);
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #12171a;
+      --surface: #191f22;
+      --surface-2: #1e2528;
+      --surface-3: #222a2d;
+      --border: #2b3336;
+      --border-strong: #3b4448;
+      --text: #e6ece9;
+      --text-muted: #9caaa4;
+      --text-faint: #71807a;
+      --accent: #74c3c6;
+      --accent-strong: #93d6d8;
+      --accent-soft: #1e3a3b;
+      --success: #63c090;
+      --success-soft: #1d3428;
+      --warning: #dfa64d;
+      --warning-soft: #3a2d17;
+      --critical: #e58787;
+      --critical-soft: #3b2121;
+      --focus-ring: #74c3c6;
+      --shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
+      color-scheme: dark;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 14px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+  }
+  .mono { font-family: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace; font-variant-numeric: tabular-nums; }
+  a { color: var(--accent); }
+  button { font-family: inherit; }
+  input, select, button { font-size: 13px; color: inherit; }
+  :focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+  .wrap { max-width: 1420px; margin: 0 auto; padding: 28px 28px 48px; display: flex; flex-direction: column; gap: 18px; }
+  .topbar { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .brand-mark {
+    display: flex; align-items: center; justify-content: center;
+    width: 44px; height: 44px; border-radius: 12px; border: none;
+    background: var(--accent-soft); color: var(--accent-strong);
+    font-size: 20px; font-family: inherit; flex: none; cursor: pointer;
+  }
+  .brand-mark:hover { background: var(--accent-strong); color: #fff; }
+  .brand h1 {
+    font-family: 'Fraunces', Georgia, 'Times New Roman', serif;
+    font-weight: 600; font-size: 26px; margin: 0; text-wrap: balance; letter-spacing: -0.01em;
+  }
+  .brand .tagline { margin: 2px 0 0; color: var(--text-muted); font-size: 13px; }
+  .save-state {
+    display: inline-flex; align-items: center; gap: 7px; padding: 7px 13px;
+    border-radius: 999px; background: var(--surface-3); color: var(--text-muted);
+    font-size: 12.5px; font-weight: 500; white-space: nowrap;
+  }
+  .save-state::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex: none; }
+  .save-pending { background: var(--warning-soft); color: var(--warning); }
+  .save-saving { background: var(--accent-soft); color: var(--accent-strong); }
+  .save-saving::before { animation: pulse 1s ease-in-out infinite; }
+  .save-saved { background: var(--success-soft); color: var(--success); }
+  .save-error { background: var(--critical-soft); color: var(--critical); }
+  @media (prefers-reduced-motion: reduce) { .save-saving::before { animation: none; } }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+  .stat {
+    background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--border-strong);
+    border-radius: 10px; padding: 12px 14px; display: flex; flex-direction: column; gap: 2px;
+  }
+  .stat-value { font-size: 22px; font-weight: 600; line-height: 1.1; }
+  .stat-label { font-size: 12px; color: var(--text-muted); }
+  .stat-neutral { border-left-color: var(--accent); }
+  .stat-neutral .stat-value { color: var(--text); }
+  .stat-success { border-left-color: var(--success); }
+  .stat-success .stat-value { color: var(--success); }
+  .stat-accent { border-left-color: var(--accent); }
+  .stat-accent .stat-value { color: var(--accent-strong); }
+  .stat-critical { border-left-color: var(--critical); }
+  .stat-critical .stat-value { color: var(--critical); }
+  .stat-warning { border-left-color: var(--warning); }
+  .stat-warning .stat-value { color: var(--warning); }
+  .workload { display: flex; flex-wrap: wrap; gap: 8px; margin-top: -6px; }
+  .workload-chip {
+    font-size: 12px; color: var(--text-muted); background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: 999px; padding: 3px 10px; display: inline-flex; gap: 5px;
+  }
+  .workload-chip .mono { color: var(--text); font-weight: 500; }
+  .toolbar {
+    display: flex; align-items: center; flex-wrap: wrap; gap: 8px; background: var(--surface-3);
+    border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; position: sticky; top: 10px;
+    z-index: 6; box-shadow: var(--shadow);
+  }
+  .toolbar input[type="search"], .toolbar select {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 7px 10px; color: var(--text);
+  }
+  .toolbar input[type="search"] { min-width: 200px; flex: 1 1 200px; }
+  .toolbar-right { display: flex; align-items: center; gap: 12px; margin-left: auto; }
+  .count { font-size: 12.5px; color: var(--text-muted); white-space: nowrap; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px; border: 1px solid transparent; border-radius: 8px;
+    padding: 8px 14px; font-weight: 600; font-size: 13px; cursor: pointer;
+  }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: var(--accent-strong); }
+  .btn-ghost { background: transparent; border-color: var(--border-strong); color: var(--text-muted); }
+  .btn-ghost:hover { background: var(--surface-2); color: var(--text); }
+  .btn-save { background: var(--success); color: #fff; }
+  .btn-save:hover:not(:disabled) { background: var(--success); filter: brightness(1.08); }
+  .btn-save:disabled { background: var(--surface-2); color: var(--text-faint); border-color: var(--border); cursor: default; }
+  #pageTitle { border-radius: 6px; padding: 2px 6px; margin: -2px -6px; cursor: text; outline: none; }
+  #pageTitle:hover { background: var(--surface-2); }
+  #pageTitle:focus { background: var(--surface); box-shadow: 0 0 0 2px var(--focus-ring); }
+  .empty-state { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 40px 20px; color: var(--text-muted); }
+  .empty-state p { margin: 0; font-size: 14px; }
+  .table-wrap {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    overflow: auto; max-height: 68vh; box-shadow: var(--shadow);
+  }
+  table { border-collapse: collapse; width: 100%; min-width: 1540px; }
+  thead th {
+    position: sticky; top: 0; background: var(--surface); border-bottom: 1px solid var(--border);
+    text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em;
+    color: var(--text-muted); padding: 10px 10px; z-index: 1; white-space: nowrap;
+  }
+  tbody td { padding: 5px 8px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  tbody tr.row:hover { background: var(--surface-2); }
+  tbody tr.row.is-done .c-author input, tbody tr.row.is-done .c-cat select { color: var(--text-muted); }
+  .empty-row td { padding: 28px; text-align: center; color: var(--text-muted); }
+  td input[type="text"], td input[type="date"], td select {
+    width: 100%; background: transparent; border: 1px solid transparent; border-radius: 6px; padding: 5px 6px; color: inherit;
+  }
+  td input[type="text"]:hover, td input[type="date"]:hover, td select:hover { border-color: var(--border); }
+  td input[type="text"]:focus, td input[type="date"]:focus, td select:focus { border-color: var(--accent); background: var(--surface); }
+  .c-author input { min-width: 150px; }
+  .c-task select, .c-platform select { min-width: 118px; }
+  .c-creative select, .c-publicist select { min-width: 90px; }
+  .c-num { color: var(--text-faint); text-align: right; padding-right: 12px; }
+  .c-done, .c-qa { text-align: center; }
+  .c-done input, .c-qa input { width: 16px; height: 16px; cursor: pointer; }
+  .c-actions { width: 34px; }
+  .note-btn {
+    display: block; width: 100%; max-width: 180px; text-align: left; background: transparent;
+    border: 1px solid transparent; border-radius: 6px; padding: 5px 6px; font: inherit; color: inherit;
+    cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .note-btn:hover { border-color: var(--border); background: var(--surface-2); }
+  .note-empty { color: var(--text-faint); font-style: italic; }
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(10, 14, 13, 0.45); display: flex; align-items: center;
+    justify-content: center; padding: 20px; z-index: 30;
+  }
+  .modal-overlay[hidden] { display: none; }
+  .modal {
+    background: var(--surface); border-radius: 12px; box-shadow: var(--shadow); width: 100%; max-width: 480px;
+    padding: 18px; display: flex; flex-direction: column; gap: 12px;
+  }
+  .modal-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .modal-head h2 { margin: 0; font-size: 16px; font-family: 'Fraunces', Georgia, 'Times New Roman', serif; }
+  .modal-close { background: transparent; border: none; color: var(--text-muted); font-size: 15px; cursor: pointer; padding: 4px 8px; border-radius: 6px; }
+  .modal-close:hover { background: var(--surface-2); color: var(--text); }
+  #noteModalText {
+    width: 100%; min-height: 200px; resize: vertical; border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px; font-family: inherit; font-size: 14px; line-height: 1.5; color: var(--text); background: var(--surface);
+  }
+  .modal-foot { display: flex; justify-content: flex-end; }
+  .pill-select {
+    border-radius: 999px !important; font-weight: 600; font-size: 12px; padding: 5px 10px !important;
+    appearance: none; -webkit-appearance: none; text-align: center; cursor: pointer;
+  }
+  .pill-success { background: var(--success-soft) !important; color: var(--success); }
+  .pill-accent { background: var(--accent-soft) !important; color: var(--accent-strong); }
+  .pill-warning { background: var(--warning-soft) !important; color: var(--warning); }
+  .pill-critical { background: var(--critical-soft) !important; color: var(--critical); }
+  .badge { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+  .badge-success { background: var(--success-soft); color: var(--success); }
+  .badge-critical { background: var(--critical-soft); color: var(--critical); }
+  .badge-warning { background: var(--warning-soft); color: var(--warning); }
+  .badge-neutral { background: var(--surface-2); color: var(--text-muted); border: 1px solid var(--border); }
+  .badge-muted { background: var(--surface-2); color: var(--text-faint); border: 1px solid var(--border); }
+  .row-del { width: 26px; height: 26px; border-radius: 7px; border: 1px solid transparent; background: transparent; color: var(--text-faint); cursor: pointer; }
+  .row-del:hover { background: var(--critical-soft); color: var(--critical); border-color: var(--critical-soft); }
+  .row-del.confirming { background: var(--critical); color: #fff; border-color: var(--critical); }
+  .foot { color: var(--text-faint); font-size: 12px; padding: 2px 2px; }
+  .toast {
+    position: fixed; right: 20px; bottom: 20px; background: var(--surface); border: 1px solid var(--border-strong);
+    box-shadow: var(--shadow); border-radius: 10px; padding: 12px 16px; font-size: 13px; max-width: 320px; z-index: 20;
+  }
+  .toast[hidden] { display: none; }
+  @media (max-width: 720px) {
+    .wrap { padding: 16px 14px 32px; }
+    .topbar { flex-direction: column; align-items: stretch; }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="topbar">
+      <div class="brand">
+        <button type="button" class="brand-mark" data-action="focus-title" aria-label="Edit tracker name">🖋️</button>
+        <div>
+          <h1 id="pageTitle" contenteditable="true" spellcheck="false" role="textbox" aria-label="Tracker name">Social Media Endorsement Desk</h1>
+          <p class="tagline">Author endorsement production tracker</p>
+        </div>
+      </div>
+      <div class="save-state save-saved" id="saveState">Saved</div>
+    </header>
+
+    <section class="stats" id="stats"></section>
+    <div class="workload" id="workload"></div>
+
+    <section class="toolbar">
+      <input id="search" type="search" placeholder="Search author or stage…" aria-label="Search">
+      <select id="fStatus" aria-label="Filter by status">
+        <option value="all">All statuses</option><option value="DONE">DONE</option><option value="IN PROGRESS">IN PROGRESS</option><option value="NOT DONE">NOT DONE</option><option value="ON HOLD">ON HOLD</option>
+      </select>
+      <select id="fPlatform" aria-label="Filter by platform">
+        <option value="all">All platforms</option><option value="FACEBOOK">FACEBOOK</option><option value="TIKTOK">TIKTOK</option><option value="INSTAGRAM">INSTAGRAM</option>
+      </select>
+      <select id="fCreative" aria-label="Filter by creative">
+        <option value="all">All creatives</option><option value="Cath">Cath</option><option value="Jed">Jed</option>
+      </select>
+      <select id="fCategory" aria-label="Filter by stage">
+        <option value="all">All stages</option><option value="PROPOSAL">PROPOSAL</option><option value="MONTH 1">MONTH 1</option><option value="MONTH 2">MONTH 2</option><option value="MONTH 3">MONTH 3</option><option value="MONTH 4">MONTH 4</option><option value="MONTH 5">MONTH 5</option><option value="MONTH 6">MONTH 6</option><option value="ADDITIONAL POSTING: REAL TIME">ADDITIONAL POSTING: REAL TIME</option>
+      </select>
+      <div class="toolbar-right">
+        <span class="count" id="count">0 of 0 entries</span>
+        <button type="button" class="btn btn-primary" data-action="add-row">+ Add author</button>
+        <button type="button" class="btn btn-save" id="saveBtn" data-action="save" disabled>Save</button>
+      </div>
+    </section>
+
+    <section class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th><th>#</th><th>Author</th><th>Publicist</th><th>Stage</th><th>Task</th>
+            <th>Done</th><th>Status</th><th>Due</th><th>Days left</th><th>QA</th>
+            <th>Platform</th><th>Creative</th><th>Note</th><th></th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </section>
+
+    <p class="foot">Click Save to publish instantly, or leave it — changes autosave a few seconds after you stop typing. Saved rows are shared with everyone who opens this page.</p>
+  </div>
+
+  <div id="toast" class="toast" hidden></div>
+
+  <div class="modal-overlay" id="noteModal" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="noteModalTitle">
+      <div class="modal-head">
+        <h2 id="noteModalTitle">Note</h2>
+        <button type="button" class="modal-close" data-action="close-note" aria-label="Close">✕</button>
+      </div>
+      <textarea id="noteModalText" placeholder="Client changes / instructions" aria-label="Note text"></textarea>
+      <div class="modal-foot">
+        <button type="button" class="btn btn-primary" data-action="close-note">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  var STAGE_OPTIONS = ['PROPOSAL', 'MONTH 1', 'MONTH 2', 'MONTH 3', 'MONTH 4', 'MONTH 5', 'MONTH 6', 'ADDITIONAL POSTING: REAL TIME'];
+  var TASK_OPTIONS = ['For Designs', 'For Changes'];
+  var STATUS_OPTIONS = ['DONE', 'IN PROGRESS', 'NOT DONE', 'ON HOLD'];
+  var PLATFORM_OPTIONS = ['FACEBOOK', 'TIKTOK', 'INSTAGRAM'];
+  var CREATIVE_OPTIONS = ['Cath', 'Jed'];
+  var PUBLICIST_OPTIONS = ['Kortney', 'Ethan', 'Michelle'];
+  var DEFAULT_TITLE = 'Endorsement Desk';
+  var AUTOSAVE_DEBOUNCE_MS = 2500;
+
+  function escapeHtml(s) {
+    s = (s === undefined || s === null) ? '' : String(s);
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  function statusClass(status) {
+    if (status === 'DONE') return 'success';
+    if (status === 'IN PROGRESS') return 'accent';
+    if (status === 'ON HOLD') return 'warning';
+    return 'critical';
+  }
+
+  function optList(options, current) {
+    return options.map(function (o) {
+      var sel = o === current ? ' selected' : '';
+      return '<option value="' + escapeHtml(o) + '"' + sel + '>' + escapeHtml(o) + '</option>';
+    }).join('');
+  }
+
+  function daysLeftBadge(r) {
+    if (r.status === 'DONE') return '<span class="badge badge-success">Complete</span>';
+    if (!r.due) {
+      var note = r.dueNote ? escapeHtml(r.dueNote) : 'No due date';
+      return '<span class="badge badge-muted">' + note + '</span>';
+    }
+    var due = new Date(r.due + 'T00:00:00');
+    var today = new Date();
+    today.setHours(0, 0, 0, 0);
+    var diff = Math.round((due - today) / 86400000);
+    if (diff < 0) return '<span class="badge badge-critical">Overdue ' + Math.abs(diff) + 'd</span>';
+    if (diff === 0) return '<span class="badge badge-warning">Due today</span>';
+    if (diff <= 3) return '<span class="badge badge-warning">Due in ' + diff + 'd</span>';
+    return '<span class="badge badge-neutral">Due in ' + diff + 'd</span>';
+  }
+
+  function truncateText(s, n) {
+    s = String(s || '');
+    return s.length > n ? s.slice(0, n - 1) + '…' : s;
+  }
+
+  function optionsWithFallback(options, current) {
+    var opts = '<option value=""' + (!current ? ' selected' : '') + '>—</option>';
+    var found = false;
+    options.forEach(function (c) {
+      var sel = c === current;
+      if (sel) found = true;
+      opts += '<option value="' + escapeHtml(c) + '"' + (sel ? ' selected' : '') + '>' + escapeHtml(c) + '</option>';
+    });
+    if (current && !found) opts += '<option value="' + escapeHtml(current) + '" selected>' + escapeHtml(current) + '</option>';
+    return opts;
+  }
+
+  function renderRow(r) {
+    var doneCls = r.done ? ' is-done' : '';
+    return (
+      '<tr data-id="' + r.id + '" class="row' + doneCls + '">' +
+        '<td class="c-date"><input type="date" data-field="date" value="' + escapeHtml(r.date || '') + '" aria-label="Endorsement date"></td>' +
+        '<td class="c-num mono">' + r.id + '</td>' +
+        '<td class="c-author"><input type="text" data-field="author" value="' + escapeHtml(r.author || '') + '" placeholder="Author name" aria-label="Author"></td>' +
+        '<td class="c-publicist"><select data-field="publicist" aria-label="Publicist">' + optionsWithFallback(PUBLICIST_OPTIONS, r.publicist) + '</select></td>' +
+        '<td class="c-cat"><select data-field="category" aria-label="Stage">' + optList(STAGE_OPTIONS, r.category) + '</select></td>' +
+        '<td class="c-task"><select data-field="task" aria-label="Task">' + optList(TASK_OPTIONS, r.task) + '</select></td>' +
+        '<td class="c-done"><input type="checkbox" data-field="done"' + (r.done ? ' checked' : '') + ' aria-label="Done"></td>' +
+        '<td class="c-status"><select data-field="status" class="pill-select pill-' + statusClass(r.status) + '" aria-label="Status">' + optList(STATUS_OPTIONS, r.status) + '</select></td>' +
+        '<td class="c-due"><input type="date" data-field="due" value="' + escapeHtml(r.due || '') + '" aria-label="Due date"></td>' +
+        '<td class="c-days">' + daysLeftBadge(r) + '</td>' +
+        '<td class="c-qa"><input type="checkbox" data-field="qa"' + (r.qa ? ' checked' : '') + ' aria-label="QA passed"></td>' +
+        '<td class="c-platform"><select data-field="platform" aria-label="Platform">' + optList(PLATFORM_OPTIONS, r.platform) + '</select></td>' +
+        '<td class="c-creative"><select data-field="creatives" aria-label="Creative">' + optionsWithFallback(CREATIVE_OPTIONS, r.creatives) + '</select></td>' +
+        '<td class="c-note"><button type="button" class="note-btn" data-action="open-note" title="' + escapeHtml(r.note || '') + '" aria-label="' + (r.note ? 'Edit note' : 'Add note') + '">' + (r.note ? escapeHtml(truncateText(r.note, 28)) : '<span class="note-empty">+ Add note</span>') + '</button></td>' +
+        '<td class="c-actions"><button type="button" class="row-del" data-action="delete" title="Remove entry" aria-label="Remove entry">✕</button></td>' +
+      '</tr>'
+    );
+  }
+
+  function renderRowsHtml(rows, totalCount) {
+    if (rows.length) return rows.map(renderRow).join('');
+    if (!totalCount) {
+      return (
+        '<tr class="empty-row"><td colspan="15"><div class="empty-state">' +
+          '<p>No endorsements logged yet.</p>' +
+          '<button type="button" class="btn btn-primary" data-action="add-row">+ Add your first author</button>' +
+        '</div></td></tr>'
+      );
+    }
+    return (
+      '<tr class="empty-row"><td colspan="15"><div class="empty-state">' +
+        '<p>No entries match these filters.</p>' +
+        '<button type="button" class="btn btn-ghost" data-action="clear-filters">Clear filters</button>' +
+      '</div></td></tr>'
+    );
+  }
+
+  function computeStats(rows) {
+    var total = rows.length;
+    var done = 0, inProgress = 0, overdue = 0, qaPending = 0;
+    var today = new Date();
+    today.setHours(0, 0, 0, 0);
+    var creativeCounts = {};
+    rows.forEach(function (r) {
+      if (r.status === 'DONE') done++;
+      if (r.status === 'IN PROGRESS') inProgress++;
+      if (!r.qa) qaPending++;
+      if (r.status !== 'DONE' && r.due) {
+        var due = new Date(r.due + 'T00:00:00');
+        if (due < today) overdue++;
+      }
+      var key = (r.creatives || 'Unassigned').trim() || 'Unassigned';
+      creativeCounts[key] = (creativeCounts[key] || 0) + 1;
+    });
+    return { total: total, done: done, inProgress: inProgress, overdue: overdue, qaPending: qaPending, creativeCounts: creativeCounts };
+  }
+
+  function renderStatsHtml(rows) {
+    var s = computeStats(rows);
+    function tile(label, value, cls) {
+      return '<div class="stat stat-' + cls + '"><span class="stat-value mono">' + value + '</span><span class="stat-label">' + label + '</span></div>';
+    }
+    var tiles = (
+      tile('Total entries', s.total, 'neutral') +
+      tile('Completed', s.done, 'success') +
+      tile('In progress', s.inProgress, 'accent') +
+      tile('Overdue', s.overdue, 'critical') +
+      tile('Awaiting QA', s.qaPending, 'warning')
+    );
+    var workload = Object.keys(s.creativeCounts).sort().map(function (k) {
+      return '<span class="workload-chip"><span class="mono">' + escapeHtml(k) + '</span> ' + s.creativeCounts[k] + ' entries</span>';
+    }).join('');
+    return { tiles: tiles, workload: workload };
+  }
+
+  function boot() {
+    var state = { title: DEFAULT_TITLE, rows: [] };
+    var ui = { q: '', status: 'all', platform: 'all', creative: 'all', category: 'all' };
+    var dirty = false;
+    var loaded = false;
+    var saveTimer = null;
+
+    var els = {
+      tbody: document.getElementById('tbody'),
+      stats: document.getElementById('stats'),
+      workload: document.getElementById('workload'),
+      count: document.getElementById('count'),
+      saveState: document.getElementById('saveState'),
+      saveBtn: document.getElementById('saveBtn'),
+      pageTitle: document.getElementById('pageTitle'),
+      search: document.getElementById('search'),
+      fStatus: document.getElementById('fStatus'),
+      fPlatform: document.getElementById('fPlatform'),
+      fCreative: document.getElementById('fCreative'),
+      fCategory: document.getElementById('fCategory'),
+      toast: document.getElementById('toast'),
+      noteModal: document.getElementById('noteModal'),
+      noteModalTitle: document.getElementById('noteModalTitle'),
+      noteModalText: document.getElementById('noteModalText')
+    };
+    var noteEditingId = null;
+
+    function applyFilters(rows) {
+      var q = ui.q.trim().toLowerCase();
+      return rows.filter(function (r) {
+        if (ui.status !== 'all' && r.status !== ui.status) return false;
+        if (ui.platform !== 'all' && r.platform !== ui.platform) return false;
+        if (ui.creative !== 'all' && (r.creatives || '') !== ui.creative) return false;
+        if (ui.category !== 'all' && r.category !== ui.category) return false;
+        if (q) {
+          var hay = ((r.author || '') + ' ' + (r.category || '')).toLowerCase();
+          if (hay.indexOf(q) === -1) return false;
+        }
+        return true;
+      });
+    }
+
+    function sortedRows() {
+      return state.rows.slice().sort(function (a, b) { return b.id - a.id; });
+    }
+
+    function paintStats() {
+      var s = renderStatsHtml(state.rows);
+      els.stats.innerHTML = s.tiles;
+      els.workload.innerHTML = s.workload;
+    }
+
+    function paintTable() {
+      var all = sortedRows();
+      var filtered = applyFilters(all);
+      els.tbody.innerHTML = renderRowsHtml(filtered, all.length);
+      els.count.textContent = filtered.length + ' of ' + all.length + ' entries';
+      paintStats();
+    }
+
+    function paintTitle() {
+      if (els.pageTitle.textContent !== state.title) els.pageTitle.textContent = state.title;
+    }
+
+    function nextId() {
+      return state.rows.reduce(function (m, r) { return Math.max(m, r.id); }, 0) + 1;
+    }
+
+    function todayIso() {
+      var d = new Date();
+      var mm = String(d.getMonth() + 1).padStart(2, '0');
+      var dd = String(d.getDate()).padStart(2, '0');
+      return d.getFullYear() + '-' + mm + '-' + dd;
+    }
+
+    function setSaveState(mode) {
+      var map = {
+        pending: 'Unsaved changes',
+        saving: 'Saving…',
+        saved: 'Saved',
+        loading: 'Loading…',
+        error: 'Save failed — try again'
+      };
+      els.saveState.textContent = map[mode] || '';
+      els.saveState.className = 'save-state save-' + mode;
+    }
+
+    function showToast(msg) {
+      els.toast.textContent = msg;
+      els.toast.hidden = false;
+      window.clearTimeout(showToast._t);
+      showToast._t = window.setTimeout(function () { els.toast.hidden = true; }, 4500);
+    }
+
+    function persist() {
+      if (!dirty) return;
+      clearTimeout(saveTimer);
+      setSaveState('saving');
+      els.saveBtn.disabled = true;
+      fetch('/api/state', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: state.title, rows: state.rows })
+      }).then(function (res) {
+        if (!res.ok) throw new Error('Server returned ' + res.status);
+        return res.json();
+      }).then(function (saved) {
+        state = saved;
+        dirty = false;
+        setSaveState('saved');
+        paintTable();
+        paintTitle();
+      }).catch(function (err) {
+        setSaveState('error');
+        els.saveBtn.disabled = false;
+        showToast('Could not save changes: ' + err.message);
+      });
+    }
+
+    // Nothing that touches the network happens until the initial GET
+    // resolves — every local edit before that just marks dirty and waits.
+    function markDirty() {
+      dirty = true;
+      els.saveBtn.disabled = false;
+      setSaveState('pending');
+      if (!loaded) return;
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(persist, AUTOSAVE_DEBOUNCE_MS);
+    }
+
+    function openNoteModal(id) {
+      var row = state.rows.find(function (r) { return r.id === id; });
+      if (!row) return;
+      noteEditingId = id;
+      els.noteModalTitle.textContent = 'Note — ' + (row.author || 'Untitled');
+      els.noteModalText.value = row.note || '';
+      els.noteModal.hidden = false;
+      window.requestAnimationFrame(function () { els.noteModalText.focus(); });
+    }
+
+    function closeNoteModal() {
+      els.noteModal.hidden = true;
+      noteEditingId = null;
+      paintTable();
+    }
+
+    els.tbody.addEventListener('change', function (e) {
+      var el = e.target;
+      var field = el.getAttribute && el.getAttribute('data-field');
+      if (!field) return;
+      var tr = el.closest('tr');
+      if (!tr) return;
+      var id = Number(tr.getAttribute('data-id'));
+      var row = state.rows.find(function (r) { return r.id === id; });
+      if (!row) return;
+      if (field === 'due' || field === 'date') row[field] = el.value || null;
+      else if (el.type === 'checkbox') row[field] = el.checked;
+      else row[field] = el.value;
+      if (field === 'status' && el.value === 'DONE') row.done = true;
+      if (field === 'done' && el.checked) row.status = 'DONE';
+      paintTable();
+      markDirty();
+    });
+
+    els.tbody.addEventListener('input', function (e) {
+      var el = e.target;
+      if (el.tagName !== 'INPUT' || el.type !== 'text') return;
+      var field = el.getAttribute('data-field');
+      var tr = el.closest('tr');
+      if (!tr) return;
+      var id = Number(tr.getAttribute('data-id'));
+      var row = state.rows.find(function (r) { return r.id === id; });
+      if (!row) return;
+      row[field] = el.value;
+      markDirty();
+    });
+
+    els.pageTitle.addEventListener('input', function () {
+      state.title = els.pageTitle.textContent.trim();
+      markDirty();
+    });
+    els.pageTitle.addEventListener('blur', function () {
+      if (!els.pageTitle.textContent.trim()) {
+        els.pageTitle.textContent = DEFAULT_TITLE;
+        state.title = DEFAULT_TITLE;
+      }
+    });
+    els.pageTitle.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); els.pageTitle.blur(); }
+    });
+
+    function clearFilterState() {
+      ui.q = ''; ui.status = 'all'; ui.platform = 'all'; ui.creative = 'all'; ui.category = 'all';
+      els.search.value = '';
+      els.fStatus.value = 'all';
+      els.fPlatform.value = 'all';
+      els.fCreative.value = 'all';
+      els.fCategory.value = 'all';
+    }
+
+    function addNewRow() {
+      var row = {
+        id: nextId(), date: todayIso(), author: '', category: 'PROPOSAL', task: 'For Designs',
+        done: false, status: 'IN PROGRESS', due: null, dueNote: '', qa: false, platform: 'FACEBOOK', creatives: '',
+        publicist: '', note: ''
+      };
+      state.rows.push(row);
+      clearFilterState();
+      paintTable();
+      markDirty();
+      window.requestAnimationFrame(function () {
+        var tr = els.tbody.querySelector('tr[data-id="' + row.id + '"]');
+        if (tr) {
+          var input = tr.querySelector('[data-field="author"]');
+          if (input) input.focus();
+          tr.scrollIntoView({ block: 'center' });
+        }
+      });
+    }
+
+    // Delete uses a click-again-to-confirm pattern on the button itself, same
+    // as the Claude Artifact version, for UI consistency across both copies.
+    document.body.addEventListener('click', function (e) {
+      if (e.target.closest('[data-action="focus-title"]')) {
+        els.pageTitle.focus();
+        var range = document.createRange();
+        range.selectNodeContents(els.pageTitle);
+        var sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+        return;
+      }
+      if (e.target.closest('[data-action="save"]')) { persist(); return; }
+      if (e.target.closest('[data-action="add-row"]')) { addNewRow(); return; }
+      if (e.target.closest('[data-action="clear-filters"]')) { clearFilterState(); paintTable(); return; }
+      var noteBtn = e.target.closest('[data-action="open-note"]');
+      if (noteBtn) {
+        var noteTr = noteBtn.closest('tr');
+        if (noteTr) openNoteModal(Number(noteTr.getAttribute('data-id')));
+        return;
+      }
+      if (e.target.closest('[data-action="close-note"]') || e.target === els.noteModal) {
+        closeNoteModal();
+        return;
+      }
+      var delBtn = e.target.closest('button[data-action="delete"]');
+      if (!delBtn) return;
+      if (!delBtn.classList.contains('confirming')) {
+        delBtn.classList.add('confirming');
+        delBtn.textContent = '✓';
+        delBtn.setAttribute('aria-label', 'Confirm removal');
+        delBtn.title = 'Click again to confirm removal';
+        clearTimeout(delBtn._confirmTimer);
+        delBtn._confirmTimer = setTimeout(function () {
+          delBtn.classList.remove('confirming');
+          delBtn.textContent = '✕';
+          delBtn.setAttribute('aria-label', 'Remove entry');
+          delBtn.title = 'Remove entry';
+        }, 3000);
+        return;
+      }
+      clearTimeout(delBtn._confirmTimer);
+      var tr = delBtn.closest('tr');
+      var id = Number(tr.getAttribute('data-id'));
+      state.rows = state.rows.filter(function (r) { return r.id !== id; });
+      paintTable();
+      markDirty();
+    });
+
+    els.noteModalText.addEventListener('input', function () {
+      if (noteEditingId === null) return;
+      var row = state.rows.find(function (r) { return r.id === noteEditingId; });
+      if (!row) return;
+      row.note = els.noteModalText.value;
+      markDirty();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !els.noteModal.hidden) closeNoteModal();
+    });
+
+    els.search.addEventListener('input', function () { ui.q = els.search.value; paintTable(); });
+    els.fStatus.addEventListener('change', function () { ui.status = els.fStatus.value; paintTable(); });
+    els.fPlatform.addEventListener('change', function () { ui.platform = els.fPlatform.value; paintTable(); });
+    els.fCreative.addEventListener('change', function () { ui.creative = els.fCreative.value; paintTable(); });
+    els.fCategory.addEventListener('change', function () { ui.category = els.fCategory.value; paintTable(); });
+
+    setSaveState('loading');
+    fetch('/api/state').then(function (res) {
+      if (!res.ok) throw new Error('Server returned ' + res.status);
+      return res.json();
+    }).then(function (data) {
+      state = data;
+      loaded = true;
+      paintTitle();
+      paintTable();
+      setSaveState('saved');
+    }).catch(function (err) {
+      setSaveState('error');
+      showToast('Could not load the tracker: ' + err.message + '. Try reloading the page.');
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
+  </script>
+</body>
+</html>
